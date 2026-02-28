@@ -74,6 +74,7 @@ body {
 #header-bar {
   height: var(--header-height);
   flex-shrink: 0;
+  position: relative;
 }
 
 /* ============================================================
@@ -400,30 +401,32 @@ body {
 #back-btn {
   display: none;
   position: absolute;
-  top: 6px;
-  left: 10px;
-  background: rgba(30, 30, 52, 0.85);
-  border: 1px solid var(--btn-border);
+  top: 50%;
+  left: 18px;
+  transform: translateY(-50%);
+  background: rgba(30, 30, 52, 0.7);
+  border: 1px solid rgba(120, 110, 130, 0.6);
   color: var(--text-gold);
   font-family: inherit;
-  font-size: 11px;
-  padding: 2px 8px;
+  font-size: 10px;
+  padding: 2px 6px;
   cursor: pointer;
   z-index: 10;
 }
-#back-btn:hover { background: rgba(50, 50, 72, 0.9); }
+#back-btn:hover { background: rgba(50, 50, 72, 0.85); }
 
 </style>
 </head>
 <body>
 
 <div id="app">
-  <!-- HEADER — invisible spacer, PNG provides the visual -->
-  <div id="header-bar"></div>
+  <!-- HEADER — PNG provides the visual, back button overlaid -->
+  <div id="header-bar">
+    <button id="back-btn">&lt; BACK</button>
+  </div>
 
   <!-- CONTENT -->
   <div id="content-wrapper">
-    <button id="back-btn">&lt; BACK</button>
     <div id="content-viewport">
       <div id="content-scroll-container">
         <div id="page-content"></div>
