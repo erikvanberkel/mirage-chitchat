@@ -232,20 +232,6 @@ body {
   margin-block: 5px;
 }
 
-.scroll-arrow {
-  width: 16px;
-  height: 100%;
-  background: transparent;
-  border: none;
-  color: transparent;
-  font-size: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  flex-shrink: 0;
-}
-
 #scrollbar-track {
   flex: 1;
   height: 100%;
@@ -447,11 +433,9 @@ body {
 
   <!-- SCROLLBAR -->
   <div id="scrollbar-area">
-    <div class="scroll-arrow" id="scroll-left">&#9664;</div>
     <div id="scrollbar-track">
       <div id="scrollbar-thumb"></div>
     </div>
-    <div class="scroll-arrow" id="scroll-right">&#9654;</div>
   </div>
 
   <!-- TOOLBAR — transparent overlay, PNG provides mascots and chrome -->
@@ -1102,13 +1086,11 @@ class ChitChatApp {
     this.scrollTrack = document.getElementById('scrollbar-track');
     this.scrollThumb = document.getElementById('scrollbar-thumb');
     this.backBtn = document.getElementById('back-btn');
-    this.scrollLeftBtn = document.getElementById('scroll-left');
-    this.scrollRightBtn = document.getElementById('scroll-right');
   }
 
   calculateDimensions() {
     const viewportWidth = this.viewport.clientWidth;
-    const padding = 14 * 2; // content-padding on both sides
+    const padding = 4 * 2; // matches --content-padding on both sides
     this.columnWidth = Math.floor((viewportWidth - padding - this.columnGap) / 2);
   }
 
@@ -1436,9 +1418,6 @@ class ChitChatApp {
   bindEvents() {
     // Scrollbar
     this.setupScrollbarDrag();
-    this.scrollLeftBtn.addEventListener('click', () => this.scrollPrev());
-    this.scrollRightBtn.addEventListener('click', () => this.scrollNext());
-
     // Back button
     this.backBtn.addEventListener('click', () => this.goBack());
 
