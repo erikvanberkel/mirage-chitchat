@@ -1,0 +1,1540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chit-Chat Issue #7</title>
+<style>
+/* ============================================================
+   FONTS
+   ============================================================ */
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+
+/* ============================================================
+   CSS VARIABLES
+   ============================================================ */
+:root {
+  --app-width: 640px;
+  --header-height: 36px;
+  --scrollbar-height: 18px;
+  --toolbar-height: 150px;
+  --content-height: 360px;
+  --column-gap: 24px;
+  --content-padding: 14px;
+
+  --bg-body: #0a0a12;
+  --bg-dark: #16162a;
+  --bg-content: #1a1a30;
+  --border-light: #555568;
+  --border-dark: #2a2a3e;
+  --text-primary: #c0c0cc;
+  --text-bright: #e0e0ee;
+  --text-gold: #d4a830;
+  --text-menu: #b8b8d0;
+  --text-menu-hover: #ffffff;
+  --header-top: #c0c0c0;
+  --header-mid: #787878;
+  --header-bot: #585858;
+  --scrollbar-bg: #1e1e34;
+  --scrollbar-thumb: #606078;
+  --scrollbar-thumb-hi: #808098;
+  --btn-bg: #2a2a40;
+  --btn-bg-active: #1e1e34;
+  --btn-border: #50506a;
+  --btn-text: #8888a0;
+  --btn-text-active: #b0b0cc;
+}
+
+/* ============================================================
+   RESET & BASE
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg-body);
+  color: var(--text-primary);
+  font-family: 'Share Tech Mono', 'Courier New', monospace;
+  font-size: 13px;
+  line-height: 1.45;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  overflow: hidden;
+  user-select: none;
+}
+
+/* ============================================================
+   APP CONTAINER
+   ============================================================ */
+#app {
+  width: var(--app-width);
+  background: var(--bg-dark);
+  border: 2px solid #3a3a50;
+  border-radius: 2px;
+  box-shadow: 0 0 60px rgba(20, 20, 60, 0.8), 0 0 4px rgba(100, 100, 160, 0.3);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+/* ============================================================
+   HEADER BAR
+   ============================================================ */
+#header-bar {
+  height: var(--header-height);
+  background: linear-gradient(180deg, var(--header-top) 0%, var(--header-mid) 45%, var(--header-bot) 65%, #6a6a6a 100%);
+  border-bottom: 2px solid #404040;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  flex-shrink: 0;
+}
+
+#header-bar::before,
+#header-bar::after {
+  content: '';
+  position: absolute;
+  top: 4px;
+  width: 8px;
+  height: 12px;
+  border-radius: 0 0 3px 3px;
+}
+#header-bar::before {
+  left: 8px;
+  background: linear-gradient(180deg, #8b1a1a, #c42020, #8b1a1a);
+}
+#header-bar::after {
+  right: 8px;
+  background: linear-gradient(180deg, #8b1a1a, #c42020, #8b1a1a);
+}
+
+.header-title {
+  font-size: 18px;
+  font-weight: bold;
+  letter-spacing: 4px;
+  color: #353535;
+  text-shadow: 1px 1px 0 #a8a8a8, -1px -1px 0 #4a4a4a;
+}
+
+/* Bolts on the header */
+.header-bolt {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #b0b0b0, #606060);
+  border: 1px solid #444;
+  top: 50%;
+  transform: translateY(-50%);
+}
+.header-bolt.left { left: 24px; }
+.header-bolt.right { right: 24px; }
+
+/* ============================================================
+   CONTENT AREA
+   ============================================================ */
+#content-wrapper {
+  position: relative;
+  flex-shrink: 0;
+  border: 1px solid var(--border-light);
+  border-top: none;
+  margin: 0 4px;
+}
+
+#content-viewport {
+  width: 100%;
+  height: var(--content-height);
+  overflow: hidden;
+  position: relative;
+  background: var(--bg-content);
+}
+
+/* Scanline CRT overlay */
+#content-viewport::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent 0px,
+    transparent 2px,
+    rgba(0, 0, 0, 0.06) 2px,
+    rgba(0, 0, 0, 0.06) 4px
+  );
+  pointer-events: none;
+  z-index: 5;
+}
+
+#content-scroll-container {
+  height: 100%;
+  transition: transform 0.35s ease;
+  will-change: transform;
+}
+
+/* Page content — CSS column flow */
+#page-content {
+  column-gap: var(--column-gap);
+  column-fill: auto;
+  height: 100%;
+  padding: var(--content-padding);
+  color: var(--text-primary);
+}
+
+#page-content.columnar {
+  width: 5000px;
+}
+
+/* Page content elements */
+#page-content h2.page-title {
+  color: var(--text-bright);
+  font-size: 15px;
+  letter-spacing: 2px;
+  margin-bottom: 10px;
+  text-align: center;
+  column-span: none;
+}
+
+#page-content p {
+  margin-bottom: 8px;
+  break-inside: avoid;
+}
+
+#page-content .text-gold {
+  color: var(--text-gold);
+}
+
+#page-content .text-emphasis {
+  color: var(--text-bright);
+  font-weight: bold;
+}
+
+/* Back button in page content */
+.back-link {
+  color: var(--text-gold);
+  cursor: pointer;
+  display: inline-block;
+  margin-bottom: 10px;
+  opacity: 0.8;
+}
+.back-link:hover {
+  opacity: 1;
+  text-decoration: underline;
+}
+
+/* ============================================================
+   MAIN PAGE — 2-COLUMN GRID
+   ============================================================ */
+.main-two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--column-gap);
+  height: 100%;
+  padding: var(--content-padding);
+}
+
+.main-col-left {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.main-col-right {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.section-header {
+  color: var(--text-bright);
+  font-size: 12px;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+/* Menu items */
+.menu-item {
+  color: var(--text-menu);
+  cursor: pointer;
+  text-align: center;
+  padding: 1px 4px;
+  font-size: 12px;
+  line-height: 1.5;
+  transition: color 0.15s, text-shadow 0.15s;
+}
+.menu-item:hover {
+  color: var(--text-menu-hover);
+  text-shadow: 0 0 6px rgba(180, 180, 255, 0.4);
+}
+
+/* Name grid for message menu */
+.name-grid .menu-item {
+  text-align: left;
+  padding: 2px 8px;
+  font-size: 12px;
+  break-inside: avoid;
+}
+
+/* ============================================================
+   FADE TRANSITION
+   ============================================================ */
+#content-viewport.fade-out {
+  animation: fadeOut 0.25s ease forwards;
+}
+#content-viewport.fade-in {
+  animation: fadeIn 0.25s ease forwards;
+}
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* ============================================================
+   HORIZONTAL SCROLLBAR
+   ============================================================ */
+#scrollbar-area {
+  height: var(--scrollbar-height);
+  margin: 0 4px;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.scroll-arrow {
+  width: 20px;
+  height: 16px;
+  background: var(--btn-bg);
+  border: 1px outset var(--btn-border);
+  color: var(--btn-text-active);
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.scroll-arrow:hover { background: #3a3a56; }
+.scroll-arrow:active { border-style: inset; }
+
+#scrollbar-track {
+  flex: 1;
+  height: 14px;
+  background: var(--scrollbar-bg);
+  border: 1px solid #333348;
+  position: relative;
+  cursor: pointer;
+}
+
+#scrollbar-thumb {
+  height: 100%;
+  min-width: 20px;
+  background: linear-gradient(180deg, #8888a0 0%, var(--scrollbar-thumb) 50%, #505068 100%);
+  border: 1px outset #7a7a90;
+  position: absolute;
+  left: 0;
+  top: 0;
+  cursor: grab;
+  transition: left 0.15s ease;
+}
+#scrollbar-thumb:active { cursor: grabbing; }
+#scrollbar-thumb.dragging { transition: none; }
+
+/* ============================================================
+   BOTTOM TOOLBAR
+   ============================================================ */
+#toolbar {
+  height: var(--toolbar-height);
+  background: var(--bg-dark);
+  display: flex;
+  align-items: stretch;
+  flex-shrink: 0;
+  border-top: 1px solid #333348;
+  margin-top: 2px;
+}
+
+.toolbar-mascot {
+  width: 150px;
+  flex-shrink: 0;
+  background-image: url('chitchat1.png');
+  background-repeat: no-repeat;
+  image-rendering: auto;
+}
+
+.toolbar-mascot.left {
+  background-position: 5px -425px;
+  background-size: 690px 554px;
+}
+
+.toolbar-mascot.right {
+  background-position: -548px -425px;
+  background-size: 696px 558px;
+}
+
+.toolbar-center {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 6px 4px;
+}
+
+/* Icon buttons row */
+.toolbar-icons {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.icon-btn {
+  width: 28px;
+  height: 24px;
+  background: var(--btn-bg);
+  border: 1px outset var(--btn-border);
+  color: var(--btn-text-active);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.icon-btn:hover { background: #3a3a56; }
+.icon-btn:active { border-style: inset; }
+
+.volume-control {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  border: 1px solid var(--btn-border);
+  padding: 2px 6px;
+  background: var(--btn-bg);
+}
+.volume-control span {
+  font-size: 9px;
+  color: var(--btn-text-active);
+  letter-spacing: 1px;
+}
+.volume-control input[type="range"] {
+  width: 60px;
+  height: 8px;
+  accent-color: var(--scrollbar-thumb);
+}
+
+/* Toggle buttons grid */
+.toolbar-toggles {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 3px;
+}
+
+.toggle-btn {
+  background: var(--btn-bg);
+  border: 1px outset var(--btn-border);
+  color: var(--btn-text);
+  font-family: inherit;
+  font-size: 9px;
+  letter-spacing: 0.5px;
+  padding: 3px 4px;
+  cursor: pointer;
+  text-align: center;
+  white-space: nowrap;
+  min-width: 85px;
+}
+.toggle-btn:hover { background: #3a3a56; }
+.toggle-btn.active {
+  border-style: inset;
+  background: var(--btn-bg-active);
+  color: var(--btn-text-active);
+  box-shadow: inset 1px 1px 3px rgba(0,0,0,0.4);
+}
+
+/* ============================================================
+   BACK BUTTON OVERLAY
+   ============================================================ */
+#back-btn {
+  display: none;
+  position: absolute;
+  top: 6px;
+  left: 10px;
+  background: rgba(30, 30, 52, 0.85);
+  border: 1px solid var(--btn-border);
+  color: var(--text-gold);
+  font-family: inherit;
+  font-size: 11px;
+  padding: 2px 8px;
+  cursor: pointer;
+  z-index: 10;
+}
+#back-btn:hover { background: rgba(50, 50, 72, 0.9); }
+
+</style>
+</head>
+<body>
+
+<div id="app">
+  <!-- HEADER -->
+  <div id="header-bar">
+    <div class="header-bolt left"></div>
+    <div class="header-title">CHIT-CHAT ISSUE #7</div>
+    <div class="header-bolt right"></div>
+  </div>
+
+  <!-- CONTENT -->
+  <div id="content-wrapper">
+    <button id="back-btn">&lt; BACK</button>
+    <div id="content-viewport">
+      <div id="content-scroll-container">
+        <div id="page-content"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCROLLBAR -->
+  <div id="scrollbar-area">
+    <div class="scroll-arrow" id="scroll-left">&#9664;</div>
+    <div id="scrollbar-track">
+      <div id="scrollbar-thumb"></div>
+    </div>
+    <div class="scroll-arrow" id="scroll-right">&#9654;</div>
+  </div>
+
+  <!-- TOOLBAR -->
+  <div id="toolbar">
+    <div class="toolbar-mascot left"></div>
+    <div class="toolbar-center">
+      <div class="toolbar-icons">
+        <button class="icon-btn" id="btn-close" title="Close">X</button>
+        <button class="icon-btn" id="btn-help" title="Help">?</button>
+        <div class="volume-control">
+          <span>VOLUME</span>
+          <input type="range" min="0" max="100" value="50">
+        </div>
+      </div>
+      <div class="toolbar-toggles">
+        <button class="toggle-btn active" data-key="scroll" data-on="SCROLL DOUBLE" data-off="SCROLL SINGLE">SCROLL DOUBLE</button>
+        <button class="toggle-btn active" data-key="speed" data-on="SPEED FAST" data-off="SPEED SLOW">SPEED FAST</button>
+        <button class="toggle-btn" data-key="fade" data-on="FADE ON" data-off="FADE OFF">FADE OFF</button>
+        <button class="toggle-btn" data-key="autoscroll" data-on="AUTOSCROLL ON" data-off="AUTOSCROLL OFF">AUTOSCROLL OFF</button>
+        <button class="toggle-btn active" data-key="bartype" data-on="BARTYPE FULL" data-off="BARTYPE HALF">BARTYPE FULL</button>
+        <button class="toggle-btn active" data-key="slidebar" data-on="SLIDEBAR ON" data-off="SLIDEBAR OFF">SLIDEBAR ON</button>
+      </div>
+    </div>
+    <div class="toolbar-mascot right"></div>
+  </div>
+</div>
+
+<script>
+/* ==============================================================
+   PAGE DATA
+   ============================================================== */
+const PAGES = {
+  main: {
+    render: 'main',
+    leftContent: `
+      <p><strong>CHIT CHAT</strong> is a <strong class="text-emphasis">MIRAGE</strong> product.</p>
+      <p>This production is also Shareware which means that it may be copied freely and that all donations and remarks are welcome.</p>
+      <p class="text-gold"><strong>BUT</strong> it's prohibited to sell or use it for Public Domain disks or for use in any other commercial way, without the permission of the <strong>CHIT CHAT</strong> staff.</p>
+      <p>To contact us, see the addresses</p>
+      <p style="margin-top:1.5em">Signed: <strong>TOMCAT</strong></p>
+    `,
+    menuItems: [
+      { label: 'PROLOGUE', page: 'prologue' },
+      { label: 'THE GALLERY', page: 'gallery' },
+      { label: 'NEWS AND RUMOURS', page: 'news' },
+      { label: 'IMPROVEMENTS', page: 'improvements' },
+      { label: 'HET ALFABET', page: 'alfabet' },
+      { label: 'COUNTED WORDS', page: 'counted' },
+      { label: 'JESTER', page: 'jester' },
+      { label: 'WHAT WE NEEDED TO MAKE THIS ISSUE', page: 'needed' },
+      { label: 'ADDRESSES WHICH CAN BE IMPORTANT', page: 'addresses' },
+      { label: 'HOW TO EDIT MESSAGES', page: 'edit_messages' },
+      { label: 'OUR MOVE #4 ARE GOING TO', page: 'move4' },
+      { label: 'THE CREDITS', page: 'credits' },
+      { label: 'MESSAGE MENU', page: 'message_menu' },
+      { label: 'BIRTHDATE MENU', page: 'birthdate_menu' },
+    ]
+  },
+
+  prologue: {
+    title: 'PROLOGUE',
+    render: 'article',
+    content: `
+      <p>Welcome once again to a brand new issue of Chit-Chat, the one and only diskmag brought to you by the Mirage crew. It has been a while since we released issue number six, but here we are again with fresh content for you to enjoy.</p>
+      <p>As always, we have tried to improve the magazine in every way possible. The interface has been updated, new sections have been added, and we have received more messages than ever before from our loyal readers.</p>
+      <p>The Amiga scene is still very much alive and kicking, despite what some people might say. New demos are being released, new groups are forming, and the creativity of the community never ceases to amaze us.</p>
+      <p>In this issue you will find the latest news from the scene, some interesting articles, jokes, and of course the ever-popular message section where you can read what your fellow sceners have to say.</p>
+      <p>We would like to thank everyone who has supported us over the years. Your messages, donations, and kind words mean the world to us. Without you, there would be no Chit-Chat.</p>
+      <p>If you would like to contribute to the next issue, please send your articles, messages, or artwork to the addresses listed in the address section. We welcome contributions from everyone, whether you are a veteran scener or a newcomer.</p>
+      <p>And now, without further ado, please enjoy Chit-Chat Issue #7!</p>
+      <p style="margin-top:1em">- The Chit-Chat Staff</p>
+    `
+  },
+
+  gallery: {
+    title: 'THE GALLERY',
+    render: 'article',
+    content: `
+      <p>Welcome to The Gallery section! Here we showcase some of the finest artwork from the Amiga scene. This issue features works from several talented pixel artists.</p>
+      <p><strong>STINGRAY</strong> - "Sunset Boulevard" - A stunning 32-color landscape showing a city skyline at dusk. The use of color gradients and dithering techniques is masterful, creating depth that seems impossible with such a limited palette.</p>
+      <p><strong>FACET</strong> - "Crystal Dreams" - An abstract piece featuring geometric shapes and reflections. The interplay of light and shadow creates a mesmerizing three-dimensional effect on a flat screen.</p>
+      <p><strong>PROWLER</strong> - "Space Station Alpha" - A detailed sci-fi scene depicting a massive orbital station. Every rivet and panel is carefully placed, showing incredible attention to detail.</p>
+      <p><strong>DANNY</strong> - "Portrait Study" - A realistic portrait rendered in just 16 colors. The skin tones and subtle shading demonstrate what a skilled artist can achieve with Deluxe Paint.</p>
+      <p><strong>SAXON</strong> - "Dragon's Lair" - A fantasy scene with a fearsome dragon guarding its treasure hoard. The flames are particularly well done, using cycling colors for animation.</p>
+      <p>All artwork was created using Deluxe Paint on stock Amiga hardware. No post-processing or PC tools were used. If you would like to submit your artwork for the next issue, contact us at the addresses section.</p>
+    `
+  },
+
+  news: {
+    title: 'NEWS AND RUMOURS',
+    render: 'article',
+    content: `
+      <p>Here are the latest happenings in the scene. As usual, some of this is confirmed fact and some is pure rumour. Take everything with a grain of salt!</p>
+      <p><strong>NEW RELEASES:</strong> Several major demos have been released since our last issue. The new Scoopex demo "Interstellar" is absolutely stunning with its vector routines. Kefrens have released a new trackmo that pushes the OCS chipset to its limits.</p>
+      <p><strong>GROUP NEWS:</strong> Razor 1911 and Fairlight have announced a joint project. Details are scarce but we hear it will be something special. Meanwhile, Paradox have recruited three new members from the dissolved group Trinity.</p>
+      <p><strong>PARTY SCENE:</strong> The Assembly party is coming up soon. Early reports suggest record attendance numbers. Several big groups have confirmed they will be entering the demo competition.</p>
+      <p><strong>HARDWARE:</strong> Rumours persist about a new Amiga model being developed. While we remain skeptical, multiple sources claim to have seen prototype boards. Time will tell if this is wishful thinking or reality.</p>
+      <p><strong>SWAPPING:</strong> The mail swapping scene continues to thrive. Several new swap lists have been circulating, and we have seen an increase in international contacts. If you want to get into swapping, check the addresses section for active swappers.</p>
+      <p><strong>CODING:</strong> A new version of ASM-One has been released with improved macro support. Several coders have already switched from Devpac, reporting faster assembly times and better debugging features.</p>
+      <p><strong>MUSIC:</strong> The debate between ProTracker and OctaMED continues. A new module player called HiP has appeared, claiming to support both formats with lower CPU usage. Early tests look promising.</p>
+      <p><strong>LEGAL:</strong> There have been reports of postal authorities intercepting packages containing disks in some European countries. Swappers are advised to use plain packaging and avoid writing group names on the outside.</p>
+    `
+  },
+
+  improvements: {
+    title: 'IMPROVEMENTS',
+    render: 'article',
+    content: `
+      <p>Here is a summary of all the improvements we have made to Chit-Chat since the last issue:</p>
+      <p><strong>NEW SCROLLBAR:</strong> The horizontal scrollbar has been completely rewritten. It now supports smooth scrolling and you can drag the thumb to quickly navigate through long articles.</p>
+      <p><strong>FASTER RENDERING:</strong> The column rendering engine has been optimized. Text now appears almost instantly when switching between sections, even on a basic A500 with 1MB chip RAM.</p>
+      <p><strong>BETTER FONTS:</strong> We have switched to a new proportional font that is easier to read. The old monospaced font is still available as an option in the settings.</p>
+      <p><strong>AUTOSCROLL:</strong> A new autoscroll feature has been added. Enable it from the toolbar and the text will slowly scroll through all columns automatically. Perfect for reading long articles hands-free.</p>
+      <p><strong>VOLUME CONTROL:</strong> The music volume can now be adjusted with a slider instead of just on/off. This was one of the most requested features.</p>
+      <p><strong>MESSAGE SYSTEM:</strong> The message section has been reorganized. Messages are now grouped by sender and sorted alphabetically, making it much easier to find messages from specific people.</p>
+      <p><strong>BIRTHDATE MENU:</strong> A new section where you can find the birthdates of many scene members. Send us your birthdate and we will add it to the next issue!</p>
+    `
+  },
+
+  alfabet: {
+    title: 'HET ALFABET',
+    render: 'article',
+    content: `
+      <p>A special section by our Dutch friends! Het Alfabet is a collection of thoughts organized from A to Z.</p>
+      <p><strong>A</strong> is for Amiga - the machine that brought us all together. Still the best computer for demos and creativity.</p>
+      <p><strong>B</strong> is for BBS - the bulletin board systems where we meet, trade, and communicate. Long live the sysops!</p>
+      <p><strong>C</strong> is for Coding - the art of making the impossible happen on 7MHz of pure power.</p>
+      <p><strong>D</strong> is for Demos - the reason we are all here. Pushing hardware beyond its limits.</p>
+      <p><strong>E</strong> is for Elite - a label everyone wants but few truly deserve.</p>
+      <p><strong>F</strong> is for Friendship - the bonds we form across borders through our shared passion.</p>
+      <p><strong>G</strong> is for Graphics - from chunky to planar, pixels are our canvas.</p>
+      <p><strong>H</strong> is for Hardware - copper, blitter, paula - the holy trinity of the Amiga.</p>
+      <p><strong>I</strong> is for Intros - small but mighty, the calling cards of the scene.</p>
+      <p><strong>J</strong> is for Joining - every journey in the scene starts with that first group invitation.</p>
+      <p><strong>K</strong> is for Kickstart - the ROM that gives our Amigas life.</p>
+      <p><strong>L</strong> is for Lamers - those who take but never give back to the scene.</p>
+      <p><strong>M</strong> is for Modules - four channels of pure musical magic.</p>
+      <p><strong>N</strong> is for Nostalgia - sometimes we look back, but always we move forward.</p>
+      <p><strong>O</strong> is for Overscan - because every pixel on the screen counts.</p>
+      <p><strong>P</strong> is for Parties - where the scene comes alive in person.</p>
+      <p><strong>Q</strong> is for Quality - what separates the good from the great.</p>
+      <p><strong>R</strong> is for Respect - earned through talent and fair dealing.</p>
+      <p><strong>S</strong> is for Swapping - the postal art of exchanging disks worldwide.</p>
+      <p><strong>T</strong> is for Trackmo - the ultimate demo format, a journey from start to finish.</p>
+      <p><strong>U</strong> is for Underground - where the real scene lives, away from the mainstream.</p>
+      <p><strong>V</strong> is for Vectors - spinning cubes and morphing objects, the demo coder's bread and butter.</p>
+      <p><strong>W</strong> is for World - our scene knows no borders.</p>
+      <p><strong>X</strong> is for XCopy - the tool that started many a career in disk copying.</p>
+      <p><strong>Y</strong> is for Youth - the new generation carrying the torch forward.</p>
+      <p><strong>Z</strong> is for Zero - the page in memory where it all begins.</p>
+    `
+  },
+
+  counted: {
+    title: 'COUNTED WORDS',
+    render: 'article',
+    content: `
+      <p>In this section we count various statistics about the Amiga scene. Here are some interesting numbers from our research:</p>
+      <p><strong>247</strong> - Active demo groups currently producing content on the Amiga platform.</p>
+      <p><strong>1,893</strong> - Demos released in the past twelve months across all Amiga platforms.</p>
+      <p><strong>42</strong> - Scene parties held in Europe during the past year.</p>
+      <p><strong>15,678</strong> - Modules uploaded to the Aminet archive in the music directory.</p>
+      <p><strong>312</strong> - Active BBS systems catering to the Amiga scene worldwide.</p>
+      <p><strong>89</strong> - Different countries represented in the global Amiga scene.</p>
+      <p><strong>7</strong> - Issues of Chit-Chat produced so far, and counting!</p>
+      <p><strong>3,456</strong> - Messages received for this issue alone.</p>
+      <p><strong>156</strong> - Individual contributors to this issue of Chit-Chat.</p>
+      <p><strong>23</strong> - Different disk magazines currently in active production.</p>
+      <p>These numbers show that the Amiga scene is far from dead. In fact, some metrics are higher than they were two years ago. Keep the scene alive!</p>
+    `
+  },
+
+  jester: {
+    title: 'JESTER',
+    render: 'article',
+    content: `
+      <p>Time for some laughs! Here are the best jokes submitted by our readers.</p>
+      <p>Why did the Amiga go to the doctor? Because it had a bad case of guru meditation!</p>
+      <p>How many PC users does it take to change a light bulb? None - they just declare darkness as the new standard.</p>
+      <p>A coder walks into a bar and orders 0x0A drinks. The bartender says "That's a lot!" The coder replies "No, that's only ten."</p>
+      <p>What is the difference between an Amiga and a PC? The Amiga crashes with style - it even meditates!</p>
+      <p>Why do demo coders make bad comedians? Because all their jokes are inside loops!</p>
+      <p>A swapper goes to the post office and asks for stamps. "How many?" asks the clerk. "Enough for 200 disks to 30 countries." The clerk faints.</p>
+      <p>How do you know a scener is lying? When they say "the new demo will be finished next week."</p>
+      <p>What is the biggest lie in the scene? "This is my last intro before I quit."</p>
+      <p>Why did the pixel artist cross the road? To get to the other side of the overscan border!</p>
+      <p>Keep sending your jokes for the next issue! The worse they are, the more likely we will print them.</p>
+    `
+  },
+
+  needed: {
+    title: 'WHAT WE NEEDED TO MAKE THIS ISSUE',
+    render: 'article',
+    content: `
+      <p>Ever wondered what goes into producing an issue of Chit-Chat? Here is the complete list of hardware and software we used:</p>
+      <p><strong>HARDWARE:</strong></p>
+      <p>Amiga 1200 with 68030 accelerator and 8MB Fast RAM. 120MB hard drive. External 880K floppy drive for testing on standard hardware. 1084S monitor for development. Star LC-24 printer for draft printouts.</p>
+      <p><strong>SOFTWARE:</strong></p>
+      <p>ASM-One v1.48 for the main engine code. Deluxe Paint IV AGA for all graphics work. ProTracker 2.3d for music. CygnusEd Professional for text editing. Directory Opus for file management. LhA for compression.</p>
+      <p><strong>CONSUMABLES:</strong></p>
+      <p>Approximately 500 blank DD disks for distribution copies. Too many cups of coffee to count. Several late nights and early mornings. Patience. Lots of patience.</p>
+      <p><strong>PEOPLE:</strong></p>
+      <p>This issue was only possible thanks to the efforts of our entire staff and all the people who sent in messages and articles. See the credits section for the full list.</p>
+    `
+  },
+
+  addresses: {
+    title: 'ADDRESSES WHICH CAN BE IMPORTANT',
+    render: 'article',
+    content: `
+      <p>Here are the contact addresses for the Chit-Chat staff and active swappers who are looking for new contacts.</p>
+      <p><strong>CHIT CHAT HQ:</strong></p>
+      <p>Tomcat / Mirage - For general inquiries, article submissions, and message contributions. Write to the HQ address for the fastest response.</p>
+      <p><strong>ACTIVE SWAPPERS:</strong></p>
+      <p>Slider / Mirage - Swapping demos, mags, and utils. Fast reply guaranteed. All formats welcome. Europe and worldwide.</p>
+      <p>Deathstar / Mirage - Looking for elite contacts only. Demos and intros preferred. Will swap same day on fast contacts.</p>
+      <p>Phantom / Mirage - New swapper looking for many contacts worldwide. Will swap anything Amiga related. Beginners welcome!</p>
+      <p>Raccoon / Spaceballs - Interested in music modules and demo coding. Will swap source code and technical documents.</p>
+      <p>Gizmo / Scoopex - Graphics swapping specialist. Send your pixel art and get some in return. Always looking for talent.</p>
+      <p><strong>NOTE:</strong> Always include a self-addressed envelope or international reply coupons with your first letter. Be patient - replies can take 2-4 weeks depending on postal service.</p>
+      <p>If you want your address listed in the next issue, send us a note with your handle, group, and what you are interested in swapping.</p>
+    `
+  },
+
+  edit_messages: {
+    title: 'HOW TO EDIT MESSAGES',
+    render: 'article',
+    content: `
+      <p>Want to have your messages included in the next issue of Chit-Chat? Here is how to submit them:</p>
+      <p><strong>FORMAT:</strong> Write your messages in plain ASCII text. You can use any text editor on the Amiga (CygnusEd, GoldED, Ed, etc.). Save the file as a plain text file, not in any word processor format.</p>
+      <p><strong>LENGTH:</strong> Try to keep individual messages under 500 words. Longer messages may be edited for space. If you have a lot to say, consider splitting it into multiple messages to different people.</p>
+      <p><strong>CONTENT:</strong> Messages can be personal greetings, scene news, opinions, questions, or anything else you want to share with the scene. Keep it friendly and constructive. Messages containing offensive content will not be published.</p>
+      <p><strong>ADDRESSING:</strong> Start each message with the name of the person or group it is addressed to. You can write messages to specific people, entire groups, or "all readers" if it is a general message.</p>
+      <p><strong>SUBMISSION:</strong> Save your messages on a disk and send it to the Chit-Chat HQ address. You can also send them via BBS if you have access to one of our boards. Messages must arrive at least two weeks before the announced deadline to be included.</p>
+      <p><strong>TIP:</strong> The most popular message writers are those who write to many different people. Do not just write to your closest friends - reach out to new people and make new contacts!</p>
+    `
+  },
+
+  move4: {
+    title: 'OUR MOVE #4 ARE GOING TO',
+    render: 'article',
+    content: `
+      <p>The Mirage crew is on the move again! Here is where we are heading and what we have planned for the near future.</p>
+      <p><strong>PARTIES:</strong> We plan to attend at least three major parties this year. Look for us at the Mirage stand - we will have copies of Chit-Chat and other Mirage productions available.</p>
+      <p><strong>NEW PRODUCTIONS:</strong> Besides the magazine, we are working on a new demo that should be ready for the summer party season. Our coders have been experimenting with some new visual effects that we think will impress.</p>
+      <p><strong>RECRUITMENT:</strong> We are looking for talented individuals to join the Mirage crew. Specifically, we need: a musician who can compose original tracker music, a coder experienced in copper and blitter programming, and additional writers for the magazine.</p>
+      <p><strong>COLLABORATIONS:</strong> We have been in contact with several other groups about joint projects. While nothing is confirmed yet, expect some exciting announcements in the coming months.</p>
+      <p><strong>CHIT-CHAT #8:</strong> Work on the next issue will begin immediately after this one is distributed. We aim for a three-month turnaround this time. Send your contributions early!</p>
+    `
+  },
+
+  credits: {
+    title: 'THE CREDITS',
+    render: 'article',
+    content: `
+      <p>Chit-Chat Issue #7 was brought to you by the following people:</p>
+      <p><strong>MAIN CODE:</strong> Tomcat / Mirage</p>
+      <p><strong>ADDITIONAL CODE:</strong> Slider / Mirage</p>
+      <p><strong>GRAPHICS:</strong> Phantom / Mirage, Danny / Mirage</p>
+      <p><strong>MUSIC:</strong> Raccoon / Spaceballs (guest musician)</p>
+      <p><strong>TEXT EDITING:</strong> Tomcat, Slider, Deathstar</p>
+      <p><strong>BETA TESTING:</strong> The entire Mirage crew</p>
+      <p><strong>SPECIAL THANKS TO:</strong></p>
+      <p>All the people who sent messages and articles. The sysops of the BBS systems that distribute our magazine. The organizers of the parties where we meet. The entire Amiga scene for keeping the spirit alive.</p>
+      <p><strong>GREETINGS:</strong></p>
+      <p>Scoopex, Kefrens, Fairlight, Razor 1911, Paradox, Spaceballs, Phenomena, Cryptoburners, Sanity, Andromeda, Complex, Melon Dezign, Lemon., Polka Brothers, Abyss, Haujobb, Ephidrena, Conspiracy, ASD, and everyone we forgot!</p>
+      <p>See you in Issue #8!</p>
+    `
+  },
+
+  message_menu: {
+    title: 'MESSAGE MENU',
+    render: 'name-grid',
+    names: [
+      { label: 'BANSHEE / PARADOX', page: 'msg_banshee' },
+      { label: 'CHROME / SCOOPEX', page: 'msg_chrome' },
+      { label: 'CROSSFIRE / MIRAGE', page: 'msg_crossfire' },
+      { label: 'CYBERSTORM / FAIRLIGHT', page: 'msg_cyberstorm' },
+      { label: 'DANNY / MIRAGE', page: 'msg_danny' },
+      { label: 'DEATHSTAR / MIRAGE', page: 'msg_deathstar' },
+      { label: 'ELECTRON / RAZOR 1911', page: 'msg_electron' },
+      { label: 'FACET / SPACEBALLS', page: 'msg_facet' },
+      { label: 'GIZMO / SCOOPEX', page: 'msg_gizmo' },
+      { label: 'HAWK / COMPLEX', page: 'msg_hawk' },
+      { label: 'JINX / PHENOMENA', page: 'msg_jinx' },
+      { label: 'KESTREL / ANDROMEDA', page: 'msg_kestrel' },
+      { label: 'LANCE / SANITY', page: 'msg_lance' },
+      { label: 'MAVERICK / KEFRENS', page: 'msg_maverick' },
+      { label: 'NEBULA / HAUJOBB', page: 'msg_nebula' },
+      { label: 'OMEGA / ABYSS', page: 'msg_omega' },
+      { label: 'PHANTOM / MIRAGE', page: 'msg_phantom' },
+      { label: 'RACCOON / SPACEBALLS', page: 'msg_raccoon' },
+      { label: 'SLIDER / MIRAGE', page: 'msg_slider' },
+      { label: 'TOMCAT / MIRAGE', page: 'msg_tomcat' },
+      { label: 'VORTEX / MELON DEZIGN', page: 'msg_vortex' },
+      { label: 'WIZARD / CRYPTOBURNERS', page: 'msg_wizard' },
+      { label: 'XRAY / LEMON.', page: 'msg_xray' },
+      { label: 'ZENITH / EPHIDRENA', page: 'msg_zenith' },
+    ]
+  },
+
+  msg_tomcat: {
+    title: 'MESSAGES FROM TOMCAT / MIRAGE',
+    render: 'article',
+    back: 'message_menu',
+    content: `
+      <p><strong>To ALL READERS:</strong> Welcome to another packed issue! I have been working hard to bring you the best content possible. This issue has more messages than ever before, which makes me very happy. Keep them coming for the next issue!</p>
+      <p><strong>To SLIDER:</strong> Thanks for all your help with the code optimizations. The scrolling is much smoother now thanks to your blitter routines. We make a great team, my friend!</p>
+      <p><strong>To DEATHSTAR:</strong> Your swapping speed is legendary! I heard you replied to 50 letters in one weekend. That must be some kind of record. Keep up the amazing work spreading Mirage productions worldwide.</p>
+      <p><strong>To RACCOON / SPACEBALLS:</strong> The music you composed for this issue is absolutely brilliant. It perfectly captures the mood we were going for. I hope we can work together again on the next issue.</p>
+      <p><strong>To CHROME / SCOOPEX:</strong> Great seeing you at the last party! Your new demo effects were mind-blowing. Let us set up a collaboration between our groups sometime. I think we could create something amazing together.</p>
+      <p><strong>To ALL LAMERS:</strong> Stop spreading cracked versions of our magazine with modified credits! If you do not like how we do things, make your own magazine. Respect the work of others.</p>
+    `
+  },
+
+  msg_slider: {
+    title: 'MESSAGES FROM SLIDER / MIRAGE',
+    render: 'article',
+    back: 'message_menu',
+    content: `
+      <p><strong>To TOMCAT:</strong> It was a pleasure working on the engine with you. I think this is our best issue yet. The new column system works great and the scrollbar is super smooth. Looking forward to starting on issue 8!</p>
+      <p><strong>To ALL SWAPPERS:</strong> I am looking for new contacts worldwide! I swap everything - demos, mags, tools, music. I guarantee a reply within one week. Do not be shy, write to me!</p>
+      <p><strong>To PHANTOM:</strong> Welcome to the crew! Your graphics skills are exactly what we needed. The new mascot design is fantastic. Can you make some loading screens for our upcoming demo?</p>
+      <p><strong>To ELECTRON / RAZOR 1911:</strong> Got your package last week, thanks for all the new releases! I am sending you a big return package with our latest stuff plus some rare classics I found.</p>
+    `
+  },
+
+  msg_deathstar: {
+    title: 'MESSAGES FROM DEATHSTAR / MIRAGE',
+    render: 'article',
+    back: 'message_menu',
+    content: `
+      <p><strong>To EVERYONE:</strong> Greetings from the fastest swapper in the scene! Just kidding (or am I?). Seriously though, I love getting mail from all of you. Every letter is answered, every disk is copied with care.</p>
+      <p><strong>To TOMCAT:</strong> Great work on this issue as always. You put so much effort into the mag and it really shows. Mirage would not be the same without your dedication.</p>
+      <p><strong>To MAVERICK / KEFRENS:</strong> Your last demo was incredible! How did you manage that vector routine on a stock A500? I have been studying it frame by frame and I still cannot figure out the trick. Share your secrets!</p>
+      <p><strong>To ALL NEW CONTACTS:</strong> If you are reading this and want to start swapping, do not hesitate to write to me. I remember what it was like to be new in the scene. Everyone needs a first contact, and I am happy to be yours!</p>
+    `
+  },
+
+  msg_phantom: {
+    title: 'MESSAGES FROM PHANTOM / MIRAGE',
+    render: 'article',
+    back: 'message_menu',
+    content: `
+      <p><strong>To MIRAGE CREW:</strong> Thanks for accepting me into the group! It is an honor to be part of such a legendary team. I promise to give my best graphics work for all our productions.</p>
+      <p><strong>To DANNY:</strong> Your pixel art inspires me every day. That portrait you did in 16 colors was unbelievable. Can we collaborate on a picture for the next demo? I think our styles would complement each other well.</p>
+      <p><strong>To ALL GRAPHICIANS:</strong> Let us push the limits of what is possible with Deluxe Paint! I am experimenting with some new dithering techniques that create amazing gradients. Contact me if you want to exchange tips and tricks.</p>
+    `
+  },
+
+  msg_chrome: {
+    title: 'MESSAGES FROM CHROME / SCOOPEX',
+    render: 'article',
+    back: 'message_menu',
+    content: `
+      <p><strong>To TOMCAT / MIRAGE:</strong> Great seeing you at the party too! Your magazine gets better with every issue. I would love to collaborate - maybe we can do a joint mag-demo hybrid production?</p>
+      <p><strong>To ALL CODERS:</strong> I have been working on a new 3D engine that runs full-screen on OCS. Yes, you read that right - OCS, not AGA! The trick is a clever use of the copper for palette switching. Demo coming soon.</p>
+      <p><strong>To SCOOPEX MEMBERS:</strong> Our next production is going to blow everyone away at the summer party. Practice your coding and get your parts ready. We are going to win this competition!</p>
+    `
+  },
+
+  msg_raccoon: {
+    title: 'MESSAGES FROM RACCOON / SPACEBALLS',
+    render: 'article',
+    back: 'message_menu',
+    content: `
+      <p><strong>To TOMCAT:</strong> Thanks for including my music in Chit-Chat! It was fun composing for a diskmag. The format is different from demo music - more ambient and background-oriented. I enjoyed the challenge.</p>
+      <p><strong>To ALL MUSICIANS:</strong> ProTracker is still the king of trackers in my opinion. Yes, OctaMED has more channels, but the discipline of working with four channels forces you to be creative. Constraints breed innovation!</p>
+      <p><strong>To SPACEBALLS CREW:</strong> Our new demo is shaping up nicely. The synced parts are looking great. I have composed five modules for it so far and I think the soundtrack will be our best work yet.</p>
+    `
+  },
+
+  msg_facet: {
+    title: 'MESSAGES FROM FACET / SPACEBALLS',
+    render: 'article',
+    back: 'message_menu',
+    content: `
+      <p><strong>To ALL READERS:</strong> Hello everyone! My latest artwork "Crystal Dreams" was featured in the gallery section and I am very proud. Pixel art is not dead - it is evolving!</p>
+      <p><strong>To PHANTOM / MIRAGE:</strong> Your new mascot designs are excellent. The Chit-Chat bird character has real personality. Would love to exchange techniques sometime.</p>
+    `
+  },
+
+  msg_banshee: {
+    title: 'MESSAGES FROM BANSHEE / PARADOX',
+    render: 'article',
+    back: 'message_menu',
+    content: `
+      <p><strong>To MIRAGE:</strong> Congratulations on another great issue! Chit-Chat is consistently one of the best diskmags on the Amiga. Keep up the excellent work.</p>
+      <p><strong>To PARADOX MEMBERS:</strong> Our new members from Trinity are fitting in perfectly. The group is stronger than ever and our next release will prove it.</p>
+      <p><strong>To ALL SCENERS:</strong> Remember - the scene is about creativity and friendship, not about ego and competition. Let us support each other and keep the Amiga alive!</p>
+    `
+  },
+
+  msg_crossfire: {
+    title: 'MESSAGES FROM CROSSFIRE / MIRAGE',
+    render: 'article',
+    back: 'message_menu',
+    content: `
+      <p><strong>To TOMCAT:</strong> Another solid issue, boss! The improvements to the engine are really noticeable. Smooth like butter.</p>
+      <p><strong>To ALL:</strong> Anyone have a spare A1200 motherboard? Mine is acting up and I need a replacement. Will trade generously!</p>
+    `
+  },
+
+  msg_cyberstorm: {
+    title: 'MESSAGES FROM CYBERSTORM / FAIRLIGHT',
+    render: 'article',
+    back: 'message_menu',
+    content: `
+      <p><strong>To MIRAGE CREW:</strong> Respect to you all for keeping the diskmag scene alive. In an age where many are moving to PC, it is refreshing to see quality Amiga productions still being made.</p>
+      <p><strong>To ELECTRON / RAZOR 1911:</strong> Our joint project is coming along nicely. The code framework is ready, now we just need to fill it with amazing effects. This will be one for the history books!</p>
+      <p><strong>To ALL FAIRLIGHT FANS:</strong> New release coming very soon. That is all I can say for now. Watch this space!</p>
+    `
+  },
+
+  msg_danny: {
+    title: 'MESSAGES FROM DANNY / MIRAGE',
+    render: 'article',
+    back: 'message_menu',
+    content: `
+      <p><strong>To PHANTOM:</strong> Welcome aboard! Great to have another graphician in the team. Your style is different from mine which is perfect - it gives Mirage visual variety.</p>
+      <p><strong>To ALL:</strong> My portrait in the gallery was done in just 16 colors. The secret? Dithering patterns that trick the eye into seeing more shades than actually exist. Happy to share my techniques with anyone interested.</p>
+    `
+  },
+
+  msg_electron: {
+    title: 'MESSAGES FROM ELECTRON / RAZOR 1911',
+    render: 'article',
+    back: 'message_menu',
+    content: `
+      <p><strong>To SLIDER / MIRAGE:</strong> Package sent last Tuesday with 15 disks of the latest stuff. Hope you enjoy it! Let me know what you think of the new Norwegian demos.</p>
+      <p><strong>To CYBERSTORM / FAIRLIGHT:</strong> The joint demo is going to be epic. I just finished my part - a 3-pass vector morphing sequence. Cannot wait to see it all put together.</p>
+      <p><strong>To THE SCENE:</strong> Razor 1911 is and always will be Amiga first. Do not believe the rumors about us going PC-only. The Amiga division is alive and well!</p>
+    `
+  },
+
+  msg_gizmo: {
+    title: 'MESSAGES FROM GIZMO / SCOOPEX',
+    render: 'article',
+    back: 'message_menu',
+    content: `
+      <p><strong>To ALL PIXEL ARTISTS:</strong> I am organizing a graphics competition by mail! Send me your best 32-color OCS picture and I will compile a voting disk. Winner gets a prize package of rare demos.</p>
+      <p><strong>To MIRAGE:</strong> Nice mag as always. The interface is really polished. Any chance of AGA support in a future issue?</p>
+    `
+  },
+
+  msg_hawk: {
+    title: 'MESSAGES FROM HAWK / COMPLEX',
+    render: 'article',
+    back: 'message_menu',
+    content: `
+      <p><strong>To ALL:</strong> Complex is back in action! After a quiet period we are ramping up for some major releases. Stay tuned for our party demo this summer.</p>
+      <p><strong>To TOMCAT:</strong> Would you be interested in a Chit-Chat / Complex cooperation? We have some ideas for a special edition. Let us talk!</p>
+    `
+  },
+
+  msg_jinx: {
+    title: 'MESSAGES FROM JINX / PHENOMENA',
+    render: 'article',
+    back: 'message_menu',
+    content: `
+      <p><strong>To MIRAGE:</strong> Phenomena sends greetings to the entire Mirage crew! Your productions are always top quality.</p>
+      <p><strong>To ALL MUSIC LOVERS:</strong> Check out our latest musicdisk "Harmonic Waves". Twelve original modules spanning all genres from techno to chiptune.</p>
+    `
+  },
+
+  msg_kestrel: {
+    title: 'MESSAGES FROM KESTREL / ANDROMEDA',
+    render: 'article',
+    back: 'message_menu',
+    content: `
+      <p><strong>To ALL READERS:</strong> Greetings from Norway! The scene up here is very active. We have monthly mini-parties and the demo output is higher than ever.</p>
+      <p><strong>To RACCOON / SPACEBALLS:</strong> Your music modules are on constant repeat in my house. Pure genius. When are you going to release a solo musicdisk?</p>
+    `
+  },
+
+  msg_lance: {
+    title: 'MESSAGES FROM LANCE / SANITY',
+    render: 'article',
+    back: 'message_menu',
+    content: `
+      <p><strong>To THE SCENE:</strong> Sanity will be at the summer party with something special. We have been quiet lately but only because we have been working on our biggest production ever. Prepare to be amazed.</p>
+      <p><strong>To TOMCAT:</strong> Chit-Chat is the best way to stay connected in the scene. In a time before networks reach everyone, your magazine is our social media. Respect!</p>
+    `
+  },
+
+  msg_maverick: {
+    title: 'MESSAGES FROM MAVERICK / KEFRENS',
+    render: 'article',
+    back: 'message_menu',
+    content: `
+      <p><strong>To DEATHSTAR / MIRAGE:</strong> Ha! You want to know the secret of our vector routine? Buy me a beer at the next party and maybe I will tell you. Or maybe not! Some secrets must be earned through coding.</p>
+      <p><strong>To ALL CODERS:</strong> The OCS Amiga still has unexplored potential. Every time I think I have found the limit, someone proves me wrong. That is what makes this machine magical.</p>
+    `
+  },
+
+  msg_nebula: {
+    title: 'MESSAGES FROM NEBULA / HAUJOBB',
+    render: 'article',
+    back: 'message_menu',
+    content: `
+      <p><strong>To MIRAGE:</strong> Haujobb sends its warmest greetings! We are big fans of Chit-Chat and always look forward to new issues.</p>
+      <p><strong>To ALL:</strong> We are experimenting with some unconventional demo techniques. Think realtime raytracing on a 68030. Crazy? Maybe. Impossible? We shall see.</p>
+    `
+  },
+
+  msg_omega: {
+    title: 'MESSAGES FROM OMEGA / ABYSS',
+    render: 'article',
+    back: 'message_menu',
+    content: `
+      <p><strong>To ALL READERS:</strong> Hello from Abyss! We are a relatively new group but we have big ambitions. Our first demo is in production and we hope to release it at the next party.</p>
+      <p><strong>To PHANTOM / MIRAGE:</strong> Your artwork is an inspiration. I am learning pixel art and your gallery pieces are what I aspire to create someday. Any tips for a beginner?</p>
+    `
+  },
+
+  msg_vortex: {
+    title: 'MESSAGES FROM VORTEX / MELON DEZIGN',
+    render: 'article',
+    back: 'message_menu',
+    content: `
+      <p><strong>To ALL:</strong> Melon Dezign is alive and well! We have been laying low but our new AGA demo will make the wait worthwhile. Full 256-color graphics with zero compromises.</p>
+      <p><strong>To GIZMO / SCOOPEX:</strong> Count me in for the graphics competition! I have a piece that I have been working on for weeks. 32 colors of pure pixel perfection.</p>
+    `
+  },
+
+  msg_wizard: {
+    title: 'MESSAGES FROM WIZARD / CRYPTOBURNERS',
+    render: 'article',
+    back: 'message_menu',
+    content: `
+      <p><strong>To MIRAGE:</strong> Cryptoburners salutes you! Great magazine, great crew, great scene. What more can we say?</p>
+      <p><strong>To ALL CODERS:</strong> I have written a new copper list generator that makes complex gradient effects much easier to code. I will release it as freeware soon. Watch the Aminet utils directory!</p>
+    `
+  },
+
+  msg_xray: {
+    title: 'MESSAGES FROM XRAY / LEMON.',
+    render: 'article',
+    back: 'message_menu',
+    content: `
+      <p><strong>To THE SCENE:</strong> Lemon. continues to push boundaries. We believe that the best Amiga demos have not been made yet. The hardware still has secrets to reveal.</p>
+      <p><strong>To TOMCAT:</strong> Please include more technical articles in the next issue! Scene coders want to learn from each other. Tutorials on copper tricks, blitter optimization, and module replay would be fantastic.</p>
+    `
+  },
+
+  msg_zenith: {
+    title: 'MESSAGES FROM ZENITH / EPHIDRENA',
+    render: 'article',
+    back: 'message_menu',
+    content: `
+      <p><strong>To ALL:</strong> Greetings from the cold north! Ephidrena is working on something new and different. We want to challenge what a demo can be. Expect the unexpected at the next party.</p>
+      <p><strong>To KESTREL / ANDROMEDA:</strong> See you at the next Norwegian gathering! We should organize a coding workshop together. Sharing knowledge makes us all better.</p>
+      <p><strong>To MIRAGE:</strong> Chit-Chat is part of scene history. Seven issues and still going strong. Here is to seven more!</p>
+    `
+  },
+
+  birthdate_menu: {
+    title: 'BIRTHDATE MENU',
+    render: 'article',
+    content: `
+      <p>Here are the birthdates of scene members who have sent them to us. Send yours for the next issue!</p>
+      <p><strong>JANUARY</strong></p>
+      <p>05 - Slider / Mirage</p>
+      <p>12 - Chrome / Scoopex</p>
+      <p>28 - Hawk / Complex</p>
+      <p><strong>FEBRUARY</strong></p>
+      <p>03 - Jinx / Phenomena</p>
+      <p>14 - Nebula / Haujobb</p>
+      <p>22 - Electron / Razor 1911</p>
+      <p><strong>MARCH</strong></p>
+      <p>07 - Danny / Mirage</p>
+      <p>15 - Facet / Spaceballs</p>
+      <p>30 - Banshee / Paradox</p>
+      <p><strong>APRIL</strong></p>
+      <p>02 - Crossfire / Mirage</p>
+      <p>18 - Vortex / Melon Dezign</p>
+      <p>25 - Wizard / Cryptoburners</p>
+      <p><strong>MAY</strong></p>
+      <p>09 - Gizmo / Scoopex</p>
+      <p>16 - Omega / Abyss</p>
+      <p>31 - Lance / Sanity</p>
+      <p><strong>JUNE</strong></p>
+      <p>06 - Tomcat / Mirage</p>
+      <p>14 - Kestrel / Andromeda</p>
+      <p>27 - Maverick / Kefrens</p>
+      <p><strong>JULY</strong></p>
+      <p>03 - Raccoon / Spaceballs</p>
+      <p>19 - Phantom / Mirage</p>
+      <p>29 - Xray / Lemon.</p>
+      <p><strong>AUGUST</strong></p>
+      <p>08 - Cyberstorm / Fairlight</p>
+      <p>21 - Deathstar / Mirage</p>
+      <p><strong>SEPTEMBER</strong></p>
+      <p>04 - Zenith / Ephidrena</p>
+      <p>17 - Banshee / Paradox</p>
+      <p><strong>OCTOBER</strong></p>
+      <p>10 - Stingray / Scoopex</p>
+      <p>26 - Prowler / Fairlight</p>
+      <p><strong>NOVEMBER</strong></p>
+      <p>01 - Saxon / Kefrens</p>
+      <p>15 - Gizmo / Scoopex</p>
+      <p><strong>DECEMBER</strong></p>
+      <p>12 - Danny / Mirage</p>
+      <p>24 - Tomcat / Mirage (a Christmas baby!)</p>
+      <p>Send your birthdate to the Chit-Chat HQ to be included in the next issue!</p>
+    `
+  },
+};
+
+/* ==============================================================
+   CHIT-CHAT APPLICATION
+   ============================================================== */
+class ChitChatApp {
+  constructor() {
+    this.currentPage = 'main';
+    this.currentColumnOffset = 0;
+    this.totalColumns = 2;
+    this.visibleColumns = 2;
+    this.columnWidth = 0;
+    this.columnGap = 24;
+    this.history = [];
+    this.autoscrollTimer = null;
+    this.autoscrollPixelOffset = 0;
+
+    this.settings = {
+      scroll: true,   // true = DOUBLE, false = SINGLE
+      speed: true,     // true = FAST, false = SLOW
+      fade: false,
+      autoscroll: false,
+      bartype: true,   // true = FULL, false = HALF
+      slidebar: true,
+    };
+
+    this.init();
+  }
+
+  init() {
+    this.cacheDOM();
+    this.calculateDimensions();
+    this.bindEvents();
+    this.navigateTo('main', false);
+  }
+
+  cacheDOM() {
+    this.viewport = document.getElementById('content-viewport');
+    this.scrollContainer = document.getElementById('content-scroll-container');
+    this.pageContent = document.getElementById('page-content');
+    this.scrollTrack = document.getElementById('scrollbar-track');
+    this.scrollThumb = document.getElementById('scrollbar-thumb');
+    this.backBtn = document.getElementById('back-btn');
+    this.scrollLeftBtn = document.getElementById('scroll-left');
+    this.scrollRightBtn = document.getElementById('scroll-right');
+  }
+
+  calculateDimensions() {
+    const viewportWidth = this.viewport.clientWidth;
+    const padding = 14 * 2; // content-padding on both sides
+    this.columnWidth = Math.floor((viewportWidth - padding - this.columnGap) / 2);
+  }
+
+  /* ----------------------------------------------------------
+     NAVIGATION
+     ---------------------------------------------------------- */
+  navigateTo(pageId, pushHistory = true) {
+    if (!PAGES[pageId]) return;
+
+    this.stopAutoscroll();
+
+    if (pushHistory && this.currentPage !== pageId) {
+      this.history.push(this.currentPage);
+    }
+
+    this.currentPage = pageId;
+    this.currentColumnOffset = 0;
+
+    if (this.settings.fade) {
+      this.viewport.classList.add('fade-out');
+      setTimeout(() => {
+        this.renderPage(pageId);
+        this.viewport.classList.remove('fade-out');
+        this.viewport.classList.add('fade-in');
+        setTimeout(() => this.viewport.classList.remove('fade-in'), 250);
+      }, 250);
+    } else {
+      this.renderPage(pageId);
+    }
+  }
+
+  goBack() {
+    if (this.history.length > 0) {
+      const prev = this.history.pop();
+      this.navigateTo(prev, false);
+    }
+  }
+
+  /* ----------------------------------------------------------
+     RENDERING
+     ---------------------------------------------------------- */
+  renderPage(pageId) {
+    const page = PAGES[pageId];
+
+    // Show/hide back button
+    const canGoBack = this.history.length > 0 || page.back;
+    this.backBtn.style.display = canGoBack ? 'block' : 'none';
+
+    if (pageId === 'main') {
+      this.renderMainPage();
+    } else if (page.render === 'name-grid') {
+      this.renderNameGrid(page);
+    } else {
+      this.renderArticle(page);
+    }
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        this.measureColumns();
+        this.updateScrollbar();
+        this.scrollToColumn(0, false);
+        if (this.settings.autoscroll && this.totalColumns > this.visibleColumns) {
+          this.startAutoscroll();
+        }
+      });
+    });
+  }
+
+  renderMainPage() {
+    this.pageContent.classList.remove('columnar');
+    this.pageContent.style.width = '';
+    this.pageContent.style.columnWidth = '';
+    const page = PAGES.main;
+
+    let html = '<div class="main-two-col">';
+
+    // Left column
+    html += '<div class="main-col-left">';
+    html += page.leftContent;
+    html += '</div>';
+
+    // Right column
+    html += '<div class="main-col-right">';
+    html += '<div class="section-header">EXTRA, READ ALL ABOUT IT</div>';
+    page.menuItems.forEach(item => {
+      html += `<div class="menu-item" data-page="${item.page}">${item.label}</div>`;
+    });
+    html += '</div>';
+
+    html += '</div>';
+    this.pageContent.innerHTML = html;
+    this.bindMenuClicks();
+
+    this.totalColumns = 2;
+  }
+
+  renderArticle(page) {
+    this.pageContent.classList.add('columnar');
+    this.pageContent.style.columnWidth = this.columnWidth + 'px';
+
+    let html = '';
+    if (page.title) {
+      html += `<h2 class="page-title">${page.title}</h2>`;
+    }
+    html += page.content;
+    this.pageContent.innerHTML = html;
+  }
+
+  renderNameGrid(page) {
+    this.pageContent.classList.add('columnar');
+    this.pageContent.style.columnWidth = this.columnWidth + 'px';
+
+    let html = '';
+    if (page.title) {
+      html += `<h2 class="page-title">${page.title}</h2>`;
+    }
+    html += '<div class="name-grid">';
+    page.names.forEach(n => {
+      html += `<div class="menu-item" data-page="${n.page}">${n.label}</div>`;
+    });
+    html += '</div>';
+    this.pageContent.innerHTML = html;
+    this.bindMenuClicks();
+  }
+
+  bindMenuClicks() {
+    this.pageContent.querySelectorAll('.menu-item[data-page]').forEach(el => {
+      el.addEventListener('click', () => {
+        this.navigateTo(el.dataset.page);
+      });
+    });
+  }
+
+  /* ----------------------------------------------------------
+     COLUMN MEASUREMENT & SCROLLING
+     ---------------------------------------------------------- */
+  measureColumns() {
+    if (this.currentPage === 'main') {
+      this.totalColumns = 2;
+      return;
+    }
+
+    this.scrollContainer.style.transform = 'translateX(0)';
+    void this.pageContent.offsetHeight;
+
+    // Find the rightmost edge of actual content using getClientRects
+    const children = this.pageContent.children;
+    const containerRect = this.pageContent.getBoundingClientRect();
+    let maxRight = 0;
+
+    for (let i = 0; i < children.length; i++) {
+      const rects = children[i].getClientRects();
+      for (let j = 0; j < rects.length; j++) {
+        const right = rects[j].right - containerRect.left;
+        if (right > maxRight) maxRight = right;
+      }
+    }
+
+    const colPlusGap = this.columnWidth + this.columnGap;
+    this.totalColumns = Math.max(2, Math.ceil(maxRight / colPlusGap));
+  }
+
+  scrollToColumn(col, animate = true) {
+    const maxCol = Math.max(0, this.totalColumns - this.visibleColumns);
+    col = Math.max(0, Math.min(col, maxCol));
+    this.currentColumnOffset = col;
+
+    const colPlusGap = this.columnWidth + this.columnGap;
+    const tx = col * colPlusGap;
+
+    this.scrollContainer.style.transition = animate ? 'transform 0.35s ease' : 'none';
+    this.scrollContainer.style.transform = `translateX(-${tx}px)`;
+    this.updateScrollbar();
+  }
+
+  scrollNext() {
+    this.stopAutoscroll();
+    const step = this.settings.scroll ? 2 : 1;
+    this.scrollToColumn(this.currentColumnOffset + step);
+  }
+
+  scrollPrev() {
+    this.stopAutoscroll();
+    const step = this.settings.scroll ? 2 : 1;
+    this.scrollToColumn(this.currentColumnOffset - step);
+  }
+
+  /* ----------------------------------------------------------
+     SCROLLBAR
+     ---------------------------------------------------------- */
+  updateScrollbar() {
+    const maxCol = this.totalColumns - this.visibleColumns;
+
+    if (maxCol <= 0) {
+      this.scrollThumb.style.width = '100%';
+      this.scrollThumb.style.left = '0px';
+      return;
+    }
+
+    const trackW = this.scrollTrack.clientWidth;
+    const thumbW = Math.max(30, (this.visibleColumns / this.totalColumns) * trackW);
+    const ratio = this.currentColumnOffset / maxCol;
+    const maxLeft = trackW - thumbW;
+
+    this.scrollThumb.style.width = thumbW + 'px';
+    this.scrollThumb.style.left = (ratio * maxLeft) + 'px';
+  }
+
+  setupScrollbarDrag() {
+    let dragging = false;
+    let startX = 0;
+    let startLeft = 0;
+
+    this.scrollThumb.addEventListener('mousedown', (e) => {
+      dragging = true;
+      this.scrollThumb.classList.add('dragging');
+      startX = e.clientX;
+      startLeft = parseFloat(this.scrollThumb.style.left) || 0;
+      e.preventDefault();
+      this.stopAutoscroll();
+    });
+
+    document.addEventListener('mousemove', (e) => {
+      if (!dragging) return;
+      const dx = e.clientX - startX;
+      const trackW = this.scrollTrack.clientWidth;
+      const thumbW = this.scrollThumb.clientWidth;
+      const maxLeft = trackW - thumbW;
+      const newLeft = Math.max(0, Math.min(startLeft + dx, maxLeft));
+
+      this.scrollThumb.style.left = newLeft + 'px';
+
+      const maxCol = this.totalColumns - this.visibleColumns;
+      if (maxCol > 0) {
+        const ratio = newLeft / maxLeft;
+        const col = Math.round(ratio * maxCol);
+        this.currentColumnOffset = col;
+        const colPlusGap = this.columnWidth + this.columnGap;
+        this.scrollContainer.style.transition = 'none';
+        this.scrollContainer.style.transform = `translateX(-${col * colPlusGap}px)`;
+      }
+    });
+
+    document.addEventListener('mouseup', () => {
+      if (dragging) {
+        dragging = false;
+        this.scrollThumb.classList.remove('dragging');
+        this.scrollToColumn(this.currentColumnOffset);
+      }
+    });
+
+    this.scrollTrack.addEventListener('click', (e) => {
+      if (e.target === this.scrollThumb) return;
+      this.stopAutoscroll();
+      const rect = this.scrollTrack.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      const ratio = clickX / rect.width;
+      const maxCol = this.totalColumns - this.visibleColumns;
+      this.scrollToColumn(Math.round(ratio * maxCol));
+    });
+  }
+
+  /* ----------------------------------------------------------
+     AUTOSCROLL
+     ---------------------------------------------------------- */
+  startAutoscroll() {
+    this.stopAutoscroll();
+    this.autoscrollPixelOffset = 0;
+    const speed = this.settings.speed ? 20 : 40;
+
+    this.autoscrollTimer = setInterval(() => {
+      const maxCol = this.totalColumns - this.visibleColumns;
+      if (maxCol <= 0) { this.stopAutoscroll(); return; }
+
+      this.autoscrollPixelOffset += 1;
+      const colPlusGap = this.columnWidth + this.columnGap;
+
+      if (this.autoscrollPixelOffset >= colPlusGap) {
+        this.autoscrollPixelOffset = 0;
+        this.currentColumnOffset += 1;
+        if (this.currentColumnOffset > maxCol) {
+          this.currentColumnOffset = maxCol;
+          this.stopAutoscroll();
+          return;
+        }
+      }
+
+      const totalTx = (this.currentColumnOffset * colPlusGap) + this.autoscrollPixelOffset;
+      this.scrollContainer.style.transition = 'none';
+      this.scrollContainer.style.transform = `translateX(-${totalTx}px)`;
+      this.updateScrollbar();
+    }, speed);
+  }
+
+  stopAutoscroll() {
+    if (this.autoscrollTimer) {
+      clearInterval(this.autoscrollTimer);
+      this.autoscrollTimer = null;
+      this.autoscrollPixelOffset = 0;
+    }
+  }
+
+  /* ----------------------------------------------------------
+     TOGGLE SETTINGS
+     ---------------------------------------------------------- */
+  toggleSetting(btn) {
+    const key = btn.dataset.key;
+    btn.classList.toggle('active');
+    const isActive = btn.classList.contains('active');
+    btn.textContent = isActive ? btn.dataset.on : btn.dataset.off;
+    this.settings[key] = isActive;
+
+    if (key === 'autoscroll') {
+      if (isActive && this.totalColumns > this.visibleColumns) {
+        this.startAutoscroll();
+      } else {
+        this.stopAutoscroll();
+      }
+    }
+  }
+
+  /* ----------------------------------------------------------
+     EVENT BINDING
+     ---------------------------------------------------------- */
+  bindEvents() {
+    // Scrollbar
+    this.setupScrollbarDrag();
+    this.scrollLeftBtn.addEventListener('click', () => this.scrollPrev());
+    this.scrollRightBtn.addEventListener('click', () => this.scrollNext());
+
+    // Back button
+    this.backBtn.addEventListener('click', () => this.goBack());
+
+    // Keyboard
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight') { this.scrollNext(); e.preventDefault(); }
+      if (e.key === 'ArrowLeft') { this.scrollPrev(); e.preventDefault(); }
+      if (e.key === 'Escape' || e.key === 'Backspace') {
+        this.goBack();
+        e.preventDefault();
+      }
+    });
+
+    // Mouse wheel
+    this.viewport.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      if (e.deltaY > 0 || e.deltaX > 0) this.scrollNext();
+      else this.scrollPrev();
+    }, { passive: false });
+
+    // Toggle buttons
+    document.querySelectorAll('.toggle-btn').forEach(btn => {
+      btn.addEventListener('click', () => this.toggleSetting(btn));
+    });
+
+    // Window resize
+    window.addEventListener('resize', () => {
+      this.calculateDimensions();
+      this.measureColumns();
+      this.updateScrollbar();
+    });
+  }
+}
+
+/* ==============================================================
+   INIT
+   ============================================================== */
+document.addEventListener('DOMContentLoaded', () => {
+  window.app = new ChitChatApp();
+});
+</script>
+
+</body>
+</html>
