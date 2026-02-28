@@ -15,34 +15,23 @@
    ============================================================ */
 :root {
   --app-width: 640px;
-  --header-height: 36px;
-  --scrollbar-height: 18px;
-  --toolbar-height: 150px;
-  --content-height: 360px;
+  --app-height: 513px; /* 640/1637 * 1313 */
+  --header-height: 61px;    /* PNG header+border ends at y≈155 → 155×0.391 */
+  --scrollbar-height: 6px; /* PNG scrollbar groove ~70px original */
+  --toolbar-height: 147px;  /* remaining: 513-61-278-27 */
+  --content-height: 278px;  /* PNG content area ~710px original → 710×0.391 */
   --column-gap: 24px;
-  --content-padding: 14px;
+  --content-padding: 12px;
+  --content-margin-x: 16px; /* PNG inner border at x≈40 → 40×0.391 */
 
   --bg-body: #0a0a12;
-  --bg-dark: #16162a;
-  --bg-content: #1a1a30;
-  --border-light: #555568;
-  --border-dark: #2a2a3e;
   --text-primary: #c0c0cc;
   --text-bright: #e0e0ee;
   --text-gold: #d4a830;
   --text-menu: #b8b8d0;
   --text-menu-hover: #ffffff;
-  --header-top: #c0c0c0;
-  --header-mid: #787878;
-  --header-bot: #585858;
-  --scrollbar-bg: #1e1e34;
   --scrollbar-thumb: #606078;
-  --scrollbar-thumb-hi: #808098;
-  --btn-bg: #2a2a40;
-  --btn-bg-active: #1e1e34;
   --btn-border: #50506a;
-  --btn-text: #8888a0;
-  --btn-text-active: #b0b0cc;
 }
 
 /* ============================================================
@@ -65,82 +54,35 @@ body {
 }
 
 /* ============================================================
-   APP CONTAINER
+   APP CONTAINER — PNG background
    ============================================================ */
 #app {
   width: var(--app-width);
-  background: var(--bg-dark);
-  border: 2px solid #3a3a50;
-  border-radius: 2px;
-  box-shadow: 0 0 60px rgba(20, 20, 60, 0.8), 0 0 4px rgba(100, 100, 160, 0.3);
+  height: var(--app-height);
+  background-image: url('chitchat1.png');
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
   display: flex;
   flex-direction: column;
   position: relative;
+  box-shadow: 0 0 60px rgba(20, 20, 60, 0.8);
 }
 
 /* ============================================================
-   HEADER BAR
+   HEADER — invisible spacer (PNG provides the visual)
    ============================================================ */
 #header-bar {
   height: var(--header-height);
-  background: linear-gradient(180deg, var(--header-top) 0%, var(--header-mid) 45%, var(--header-bot) 65%, #6a6a6a 100%);
-  border-bottom: 2px solid #404040;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
   flex-shrink: 0;
 }
 
-#header-bar::before,
-#header-bar::after {
-  content: '';
-  position: absolute;
-  top: 4px;
-  width: 8px;
-  height: 12px;
-  border-radius: 0 0 3px 3px;
-}
-#header-bar::before {
-  left: 8px;
-  background: linear-gradient(180deg, #8b1a1a, #c42020, #8b1a1a);
-}
-#header-bar::after {
-  right: 8px;
-  background: linear-gradient(180deg, #8b1a1a, #c42020, #8b1a1a);
-}
-
-.header-title {
-  font-size: 18px;
-  font-weight: bold;
-  letter-spacing: 4px;
-  color: #353535;
-  text-shadow: 1px 1px 0 #a8a8a8, -1px -1px 0 #4a4a4a;
-}
-
-/* Bolts on the header */
-.header-bolt {
-  position: absolute;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 35% 35%, #b0b0b0, #606060);
-  border: 1px solid #444;
-  top: 50%;
-  transform: translateY(-50%);
-}
-.header-bolt.left { left: 24px; }
-.header-bolt.right { right: 24px; }
-
 /* ============================================================
-   CONTENT AREA
+   CONTENT AREA — transparent overlay on PNG
    ============================================================ */
 #content-wrapper {
   position: relative;
   flex-shrink: 0;
-  border: 1px solid var(--border-light);
-  border-top: none;
-  margin: 0 4px;
+  margin: 0 var(--content-margin-x);
 }
 
 #content-viewport {
@@ -148,23 +90,7 @@ body {
   height: var(--content-height);
   overflow: hidden;
   position: relative;
-  background: var(--bg-content);
-}
-
-/* Scanline CRT overlay */
-#content-viewport::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: repeating-linear-gradient(
-    0deg,
-    transparent 0px,
-    transparent 2px,
-    rgba(0, 0, 0, 0.06) 2px,
-    rgba(0, 0, 0, 0.06) 4px
-  );
-  pointer-events: none;
-  z-index: 5;
+  background: #291028; /* matches PNG content area bg — covers baked-in text */
 }
 
 #content-scroll-container {
@@ -231,7 +157,6 @@ body {
   grid-template-columns: 1fr 1fr;
   gap: var(--column-gap);
   height: 100%;
-  padding: var(--content-padding);
 }
 
 .main-col-left {
@@ -244,7 +169,6 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
 }
 
 .section-header {
@@ -260,9 +184,8 @@ body {
   color: var(--text-menu);
   cursor: pointer;
   text-align: center;
-  padding: 1px 4px;
   font-size: 12px;
-  line-height: 1.5;
+  line-height: 1.4;
   transition: color 0.15s, text-shadow 0.15s;
 }
 .menu-item:hover {
@@ -297,23 +220,24 @@ body {
 }
 
 /* ============================================================
-   HORIZONTAL SCROLLBAR
+   HORIZONTAL SCROLLBAR — transparent overlay on PNG
    ============================================================ */
 #scrollbar-area {
   height: var(--scrollbar-height);
-  margin: 0 4px;
+  margin: 0 var(--content-margin-x);
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: 0;
   flex-shrink: 0;
+  margin-block: 5px;
 }
 
 .scroll-arrow {
-  width: 20px;
-  height: 16px;
-  background: var(--btn-bg);
-  border: 1px outset var(--btn-border);
-  color: var(--btn-text-active);
+  width: 16px;
+  height: 100%;
+  background: transparent;
+  border: none;
+  color: transparent;
   font-size: 10px;
   display: flex;
   align-items: center;
@@ -321,14 +245,12 @@ body {
   cursor: pointer;
   flex-shrink: 0;
 }
-.scroll-arrow:hover { background: #3a3a56; }
-.scroll-arrow:active { border-style: inset; }
 
 #scrollbar-track {
   flex: 1;
-  height: 14px;
-  background: var(--scrollbar-bg);
-  border: 1px solid #333348;
+  height: 100%;
+  background: #291028;
+  border: none;
   position: relative;
   cursor: pointer;
 }
@@ -336,8 +258,8 @@ body {
 #scrollbar-thumb {
   height: 100%;
   min-width: 20px;
-  background: linear-gradient(180deg, #8888a0 0%, var(--scrollbar-thumb) 50%, #505068 100%);
-  border: 1px outset #7a7a90;
+  background: #fff;
+  border: 1px outset rgba(140, 140, 170, 0.5);
   position: absolute;
   left: 0;
   top: 0;
@@ -348,34 +270,20 @@ body {
 #scrollbar-thumb.dragging { transition: none; }
 
 /* ============================================================
-   BOTTOM TOOLBAR
+   BOTTOM TOOLBAR — transparent overlay on PNG
    ============================================================ */
 #toolbar {
-  height: var(--toolbar-height);
-  background: var(--bg-dark);
+  flex: 1;
+  background: transparent;
   display: flex;
   align-items: stretch;
   flex-shrink: 0;
-  border-top: 1px solid #333348;
-  margin-top: 2px;
 }
 
-.toolbar-mascot {
-  width: 150px;
+/* Invisible spacers where mascots are in the PNG */
+.toolbar-spacer {
+  width: 199px;
   flex-shrink: 0;
-  background-image: url('chitchat1.png');
-  background-repeat: no-repeat;
-  image-rendering: auto;
-}
-
-.toolbar-mascot.left {
-  background-position: 5px -425px;
-  background-size: 690px 554px;
-}
-
-.toolbar-mascot.right {
-  background-position: -548px -425px;
-  background-size: 696px 558px;
 }
 
 .toolbar-center {
@@ -383,24 +291,24 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 6px 4px;
+  justify-content: flex-start;
+  gap: 18px;
+  padding: 25px 3px 0;
 }
 
 /* Icon buttons row */
 .toolbar-icons {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
 }
 
 .icon-btn {
-  width: 28px;
-  height: 24px;
-  background: var(--btn-bg);
-  border: 1px outset var(--btn-border);
-  color: var(--btn-text-active);
+  width: 26px;
+  height: 22px;
+  background: transparent;
+  border: none;
+  color: transparent;
   font-family: inherit;
   font-size: 13px;
   font-weight: bold;
@@ -409,39 +317,67 @@ body {
   align-items: center;
   justify-content: center;
 }
-.icon-btn:hover { background: #3a3a56; }
-.icon-btn:active { border-style: inset; }
 
 .volume-control {
   display: flex;
   align-items: center;
   gap: 4px;
-  border: 1px solid var(--btn-border);
+  border: none;
   padding: 2px 6px;
-  background: var(--btn-bg);
+  background: transparent;
 }
 .volume-control span {
   font-size: 9px;
-  color: var(--btn-text-active);
+  color: transparent;
   letter-spacing: 1px;
 }
 .volume-control input[type="range"] {
-  width: 60px;
+  -webkit-appearance: none;
+  appearance: none;
+  width: 77px;
   height: 8px;
-  accent-color: var(--scrollbar-thumb);
+  background: transparent;
+  cursor: pointer;
+}
+.volume-control input[type="range"]::-webkit-slider-runnable-track {
+  height: 4px;
+  background: transparent;
+}
+.volume-control input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 8px;
+  height: 10px;
+  background: #c03030;
+  border: 1px solid #e06060;
+  margin-top: -3px;
+  cursor: pointer;
+}
+.volume-control input[type="range"]::-moz-range-track {
+  height: 4px;
+  background: transparent;
+}
+.volume-control input[type="range"]::-moz-range-thumb {
+  width: 8px;
+  height: 10px;
+  background: #c03030;
+  border: 1px solid #e06060;
+  border-radius: 0;
+  cursor: pointer;
 }
 
-/* Toggle buttons grid */
+/* Toggle buttons grid — 2 columns × 3 rows matching PNG layout */
 .toolbar-toggles {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 3px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 9px;
+  align-self: stretch;
+  margin-inline: 24px;
 }
 
 .toggle-btn {
-  background: var(--btn-bg);
-  border: 1px outset var(--btn-border);
-  color: var(--btn-text);
+  background: transparent;
+  border: 1px solid transparent;
+  color: transparent;
   font-family: inherit;
   font-size: 9px;
   letter-spacing: 0.5px;
@@ -449,14 +385,27 @@ body {
   cursor: pointer;
   text-align: center;
   white-space: nowrap;
-  min-width: 85px;
+  min-width: 80px;
+  position: relative;
 }
-.toggle-btn:hover { background: #3a3a56; }
-.toggle-btn.active {
-  border-style: inset;
-  background: var(--btn-bg-active);
-  color: var(--btn-text-active);
-  box-shadow: inset 1px 1px 3px rgba(0,0,0,0.4);
+
+/* Inactive state: dark overlay dims the PNG button beneath */
+.toggle-btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  pointer-events: none;
+  transition: opacity 0.15s;
+}
+
+/* Active state: no overlay, PNG button fully visible */
+.toggle-btn.active::after {
+  opacity: 0;
+}
+
+.toggle-btn:hover::after {
+  background: rgba(0, 0, 0, 0.3);
 }
 
 /* ============================================================
@@ -483,12 +432,8 @@ body {
 <body>
 
 <div id="app">
-  <!-- HEADER -->
-  <div id="header-bar">
-    <div class="header-bolt left"></div>
-    <div class="header-title">CHIT-CHAT ISSUE #7</div>
-    <div class="header-bolt right"></div>
-  </div>
+  <!-- HEADER — invisible spacer, PNG provides the visual -->
+  <div id="header-bar"></div>
 
   <!-- CONTENT -->
   <div id="content-wrapper">
@@ -509,16 +454,16 @@ body {
     <div class="scroll-arrow" id="scroll-right">&#9654;</div>
   </div>
 
-  <!-- TOOLBAR -->
+  <!-- TOOLBAR — transparent overlay, PNG provides mascots and chrome -->
   <div id="toolbar">
-    <div class="toolbar-mascot left"></div>
+    <div class="toolbar-spacer"></div>
     <div class="toolbar-center">
       <div class="toolbar-icons">
         <button class="icon-btn" id="btn-close" title="Close">X</button>
         <button class="icon-btn" id="btn-help" title="Help">?</button>
         <div class="volume-control">
           <span>VOLUME</span>
-          <input type="range" min="0" max="100" value="50">
+          <input type="range" min="0" max="100" value="100">
         </div>
       </div>
       <div class="toolbar-toggles">
@@ -530,7 +475,7 @@ body {
         <button class="toggle-btn active" data-key="slidebar" data-on="SLIDEBAR ON" data-off="SLIDEBAR OFF">SLIDEBAR ON</button>
       </div>
     </div>
-    <div class="toolbar-mascot right"></div>
+    <div class="toolbar-spacer"></div>
   </div>
 </div>
 
